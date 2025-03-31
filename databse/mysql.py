@@ -35,22 +35,22 @@ class MySQLTable:
         self.cursor.execute('DELETE FROM %s WHERE %s', (self.table_name, condition))
         return self.cursor.commit()
     
-    def MutFetchOne(self, condition = None):
+    def MutexFetchOne(self, condition = None):
         future = self.thread_pool_executor.submit(self.FetchOne, condition)
         return future.result()
     
-    def MutFetchAll(self, condition = None):
+    def MutexFetchAll(self, condition = None):
         future = self.thread_pool_executor.submit(self.FetchAll, condition)
         return future.result()
     
-    def MutUpdate(self, expression, condition, result = False):
+    def MutexUpdate(self, expression, condition, result = False):
         future = self.thread_pool_executor.submit(self.Update, expression, condition)
         if result:
             return future.result()
         else:
             return None
         
-    def MutDelete(self, condition, result = False):
+    def MutexDelete(self, condition, result = False):
         future = self.thread_pool_executor.submit(self.Delete, condition)
         if result:
             return future.result()
