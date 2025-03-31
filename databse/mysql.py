@@ -9,6 +9,13 @@ class MySQLTable:
     def __del__(self):
         self.cursor.close()
 
+    def FetchOne(self, condition = None):
+        if condition is None:
+            self.cursor.execute('SELECT * FROM %s', self.table_name)
+        else:
+            self.cursor.execute('SELECT * FROM %s WHERE %s', (self.table_name, condition))
+        return self.cursor.fetchone()
+
     def FetchAll(self, condition = None):
         if condition is None:
             self.cursor.execute('SELECT * FROM %s', self.table_name)
