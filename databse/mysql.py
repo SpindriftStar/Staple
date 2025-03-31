@@ -1,10 +1,14 @@
 import pymysql
 import pymysql.cursors
 
+from concurrent.futures import ThreadPoolExecutor
+
 class MySQLTable:
-    def __init__(self, cursor, table_name):
+    def __init__(self, cursor, table_name, thread_pool_executor = None):
         self.cursor = cursor
         self.table_name = table_name
+        if thread_pool_executor is not None:
+            self.thread_pool_executor = thread_pool_executor
 
     def __del__(self):
         self.cursor.close()
@@ -30,6 +34,28 @@ class MySQLTable:
     def Delete(self, condition):
         self.cursor.execute('DELETE FROM %s WHERE %s', (self.table_name, condition))
         return self.cursor.commit()
+    
+    def MutFetchOne(self, condition = None):
+        future = self.thread_pool_executor.submit(self.FetchOne, condition)
+        return future.result()
+    
+    def MutFetchAll(self, condition = None):
+        future = self.thread_pool_executor.submit(self.FetchAll, condition)
+        return future.result()
+    
+    def MutUpdate(self, expression, condition, result = False):
+        future = self.thread_pool_executor.submit(self.Update, expression, condition)
+        if result:
+            return future.result()
+        else:
+            return None
+        
+    def MutDelete(self, condition, result = False):
+        future = self.thread_pool_executor.submit(self.Delete, condition)
+        if result:
+            return future.result()
+        else:
+            return None
 
 class MySQLDatabase():
     def __init__(self, host, port, user, password, database):
@@ -48,4 +74,4 @@ class MySQLDatabase():
         self.connection.close()
 
     def GetTable(self, table_name):
-        return MySQLTable(self.connection.cursor())
+        return MySQLTable(self.connection.cursor(), table_name)
