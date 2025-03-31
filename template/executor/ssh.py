@@ -3,7 +3,7 @@ from pathlib import Path
 
 import paramiko
 
-from executor.common import (BaseExecutor)
+from template.executor.common import (BaseExecutor)
 
 class SSHAuth:
     def __init__(self, device_id, use_password, username, passward, key):
