@@ -1,18 +1,28 @@
 import pymysql
+import pymysql.cursors
 
-class MySQLFetchIter:
-    def __init__(self, cursor, query, params=None):
+class MySQLTable:
+    def __init__(self, cursor, table_name):
         self.cursor = cursor
-        self.cursor.execute(query, params)
+        self.table_name = table_name
 
-    def __iter__(self):
-        return self
+    def __del__(self):
+        self.cursor.close()
 
-    def __next__(self):
-        row = self.cursor.fetchone()
-        if row is None:
-            raise StopIteration
-        return row
+    def FetchAll(self, condition = None):
+        if condition is None:
+            self.cursor.execute('SELECT * FROM %s', self.table_name)
+        else:
+            self.cursor.execute('SELECT * FROM %s WHERE %s', (self.table_name, condition))
+        return self.cursor.fetchall()
+    
+    def Update(self, expression, condition):
+        self.cursor.execute('UPDATE %s SET %s WHERE %s', (self.table_name, expression, condition))
+        return self.cursor.commit()
+    
+    def Delete(self, condition):
+        self.cursor.execute('DELETE FROM %s WHERE %s', (self.table_name, condition))
+        return self.cursor.commit()
 
 class MySQLDatabase():
     def __init__(self, host, port, user, password, database):
@@ -24,21 +34,11 @@ class MySQLDatabase():
                 password = password,
                 database = database
             )
-            self.cursor = self.connection.cursor()
         except Exception as e:
             assert False, f"Failed to connect to database: {e}"
 
     def __del__(self):
-        self.cursor.close()
         self.connection.close()
 
-    def ExecuteQuery(self, query, params=None):
-        self.cursor.execute(query, params)
-        self.connection.commit()
-
-    def FetchAll(self, query, params=None):
-        self.cursor.execute(query, params)
-        return self.cursor.fetchall()
-    
-    def FetchIter(self, query, params=None):
-        return MySQLFetchIter(self.cursor, query, params)
+    def GetTable(self, table_name):
+        return MySQLTable(self.connection.cursor())
