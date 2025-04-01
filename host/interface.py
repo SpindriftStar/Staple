@@ -1,20 +1,19 @@
-class Interface:
+class InterfaceData:
     def __init__(self, interface_id, host_id, ip, port, mysql_table):
-        self._interface_id = interface_id
-        self.host_id = host_id
-        self.ip = ip
-        self.port = port
-
-        self._mysql_table = mysql_table
-
+        super().__setattr__('interface_id', interface_id)
+        super().__setattr__('host_id', host_id)
+        super().__setattr__('ip', ip)
+        super().__setattr__('port', port)
+        super().__setattr__('_mysql_table', mysql_table)
+    
     def __setattr__(self, name, value):
         self.__dict__[name] = value
-        self._mysql_table.Update(f'{name} = {value}', f'interface_id = {self._interface_id}')
+        self._mysql_table.MutexUpdate(f'{name} = {value}', f'interface_id = {self._interface_id}')
 
-    @property
-    def interface_id(self):
-        return self._interface_id
-    
+class Interface(InterfaceData):
+    def __init__(self, interface_id, host_id, ip, port, mysql_table):
+        super().__init__(interface_id, host_id, ip, port, mysql_table)
+
 class InterfaceContainer:
     def __init__(self, mysql_database):
         self._mysql_table = mysql_database.GetTable('interface')

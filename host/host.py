@@ -1,21 +1,19 @@
-class Host:
-    def __init__(self, host_id, name, interface, status, accessible, mysql_table):
-        self._host_id = host_id
-        self.name = name
-        self.interface = interface if isinstance(interface, (list, tuple)) else [interface]
-        self.status = status
-        self.accessible = accessible
-
-        self._mysql_table= mysql_table
-
+class HostData:
+    def __init__(self, host_id, name, status, accessible, mysql_table):
+        super().__setattr__('host_id', host_id)
+        super().__setattr__('name', name)
+        super().__setattr__('status', status)
+        super().__setattr__('accessible', accessible)
+        super().__setattr__('_mysql_table', mysql_table)
+    
     def __setattr__(self, name, value):
         self.__dict__[name] = value
-        if name != 'interface':
-            self._mysql_table.Update(f'{name} = {value}', f'host_id = {self._host_id}')
+        self._mysql_table.Update(f'{name} = {value}', f'host_id = {self._host_id}')
 
-    @property
-    def host_id(self):
-        return self._host_id
+class Host:
+    def __init__(self, host_id, name, interface, status, accessible, mysql_table):
+        self.data = HostData(host_id, name, status, accessible, mysql_table)
+        self.interface = interface if isinstance(interface, (list, tuple)) else [interface]
     
 class HostContainer:
     def __init__(self, mysql_database):
