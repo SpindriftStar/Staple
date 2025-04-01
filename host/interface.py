@@ -10,9 +10,9 @@ class InterfaceData:
         self.__dict__[name] = value
         self._mysql_table.MutexUpdate(f'{name} = {value}', f'interface_id = {self._interface_id}')
 
-class Interface(InterfaceData):
+class Interface():
     def __init__(self, interface_id, host_id, ip, port, mysql_table):
-        super().__init__(interface_id, host_id, ip, port, mysql_table)
+        self.data = InterfaceData(interface_id, host_id, ip, port, mysql_table)
 
 class InterfaceContainer:
     def __init__(self, mysql_database):
