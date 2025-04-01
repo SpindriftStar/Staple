@@ -8,7 +8,7 @@ class HostData:
     
     def __setattr__(self, name, value):
         self.__dict__[name] = value
-        self._mysql_table.Update(f'{name} = {value}', f'host_id = {self._host_id}')
+        self._mysql_table.Update(f'{name} = {value}', f'host_id = {self.host_id}')
 
 class Host:
     def __init__(self, host_id, name, interface, status, accessible, mysql_table):

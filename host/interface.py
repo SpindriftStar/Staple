@@ -8,7 +8,7 @@ class InterfaceData:
     
     def __setattr__(self, name, value):
         self.__dict__[name] = value
-        self._mysql_table.MutexUpdate(f'{name} = {value}', f'interface_id = {self._interface_id}')
+        self._mysql_table.MutexUpdate(f'{name} = {value}', f'interface_id = {self.interface_id}')
 
 class Interface():
     def __init__(self, interface_id, host_id, ip, port, mysql_table):
