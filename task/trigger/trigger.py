@@ -20,12 +20,12 @@ class Trigger():
         expression = self.data.expression
         expression_split = expression.split(' ')
         prefix = expression_split[0]
-        if prefix == 'restart':
+        if prefix == '@restart':
             self._type = 0
             self._times = 1
             self._timedelta = -1
             self._signal = 'signal_restart'
-        elif prefix == 'interval':
+        elif prefix == '@interval':
             if len(expression_split) != 5:
                 raise ValueError(f'Invalid trigger expression {expression}')
             if not (str.isnumeric(expression_split[1]) 
@@ -40,7 +40,7 @@ class Trigger():
             hour = int(expression_split[4])
             self._timedelta = second + minute * 60 + hour * 3600
             self._signal = 'signal_interval'
-        elif prefix == 'signal':
+        elif prefix == '@signal':
             signals = expression_split[1:]
             if len(signals) != 1:
                 raise ValueError(f'No valid signal in trigger expression {expression}')
