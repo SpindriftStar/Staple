@@ -84,9 +84,9 @@ class Template:
             raise ValueError(f'Invalid directory to template file {dir}')
         self.segment_set = []
 
-    def LoadTemplate(self, dir, file):
+    def LoadTemplate(self):
         segment = Segment({})
-        for line in ContentIter(dir, file):
+        for line in ContentIter(self.dir, self.file):
             line_split = line.split(' ')
             prefix = line_split[0]
             if prefix == 'ENV':
@@ -102,3 +102,8 @@ class Template:
                 segment = Segment(env)
             else:
                 segment.AppendLine(line)
+
+    def Implement(self, data: dict):
+        for segment in self.segment_set:
+            segment.Implement(data)
+        return self.segment_set
