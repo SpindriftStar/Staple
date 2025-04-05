@@ -3,6 +3,37 @@ import pymysql.cursors
 
 from concurrent.futures import ThreadPoolExecutor
 
+class Data:
+    def __init__(self, id_name, id, data : dict, table):
+        super().__setattr__(id_name, id)
+        for key, value in data.items():
+            super().__setattr__(key, value)
+        super().__setattr__('_table', table)
+        super().__setattr__('_id_name', id_name)
+
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
+        self._table.MutexUpdate(f'{name} = {value}', f'{self._id_name} = {self.__dict__[self._id_name]}')
+
+class DataLoader:
+    def __init__(self, database, table_name, id_key, data_key):
+        table = database.GetTable(table_name)
+
+        self.data = {}
+        value = table.FetchAll()
+        for id, *data in value:
+            self.data[id] = Data(id_key, id, dict(zip(data_key, data)), table)
+        
+    def __iter__(self):
+        self.data_iter = iter(self.data.items())
+        return self
+    
+    def __next__(self):
+        return next(self.data_iter)
+    
+    def __getitem__(self, id):
+        return self.data[id]
+
 class MySQLTable:
     def __init__(self, cursor, table_name, thread_pool_executor = None):
         self.cursor = cursor

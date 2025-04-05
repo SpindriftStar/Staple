@@ -1,42 +1,28 @@
-class InterfaceData:
-    def __init__(self, interface_id, host_id, ip, port, mysql_table):
-        super().__setattr__('interface_id', interface_id)
-        super().__setattr__('host_id', host_id)
-        super().__setattr__('ip', ip)
-        super().__setattr__('port', port)
-        super().__setattr__('_mysql_table', mysql_table)
-    
-    def __setattr__(self, name, value):
-        self.__dict__[name] = value
-        self._mysql_table.MutexUpdate(f'{name} = {value}', f'interface_id = {self.interface_id}')
+from database.mysql import (DataLoader)
 
 class Interface():
-    def __init__(self, interface_id, host_id, ip, port, mysql_table):
-        self.data = InterfaceData(interface_id, host_id, ip, port, mysql_table)
+    def __init__(self, data):
+        self.data = data
 
 class InterfaceContainer:
-    def __init__(self, mysql_database):
-        self._mysql_table = mysql_database.GetTable('interface')
-
-        self._interfaces = {}
-        interfaces = self._mysql_table.FetchAll()
-        for (interface_id, host_id, ip, port) in interfaces:
-            self._interfaces[interface_id] = Interface(interface_id, host_id, ip, port, self._mysql_table)
+    def __init__(self, database):
+        dataloader = DataLoader(database, 'interface', 'interface_id', ['description', 'host_id', 'ip', 'port'])
+        self.interfaces = {}
+        for interface_id, data in dataloader:
+            self.interfaces[interface_id] = Interface(data)
 
     def __getitem__(self, interface_id):
-        return self._interfaces[interface_id]
+        return self.interfaces[interface_id]
 
     def __delitem__(self, interface_id):
-        del self._interfaces[interface_id]
+        del self.interfaces[interface_id]
 
     def __iter__(self):
-        self._interface_ids = self._interfaces.keys()
-        self._interface_ids.__iter__()
+        self.interface_iter = iter(self.interfaces.items())
         return self
     
     def __next__(self):
-        interface_id = self._interface_ids.__next__()
-        return interface_id, self._interfaces[interface_id]
+        return next(self.interface_iter)
     
     def __len__(self):
-        return self._interfaces.__len__()
+        return self.interfaces.__len__()
