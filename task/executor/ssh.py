@@ -6,8 +6,8 @@ import paramiko
 from task.executor.common import (BaseExecutor)
 
 class SSHAuth:
-    def __init__(self, device_id, use_password, username, passward, key):
-        self.device_id = device_id
+    def __init__(self, host_id, use_password, username, passward, key):
+        self.host_id = host_id
         self.use_password = use_password
         self.username = username
         self.password = passward
@@ -24,8 +24,7 @@ class SSHAuth:
 
 class SSHBaseExecutor(BaseExecutor):
     def __init__(self, interface, auth):
-        super().__init__(interface)
-        self.auth = auth
+        super().__init__(interface, auth)
         self.ssh_client = paramiko.SSHClient()
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
