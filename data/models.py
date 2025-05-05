@@ -1,7 +1,7 @@
 from django.db import models
 
 class Host(models.Model):
-    name = models.CharField(max_length = 100)
+    name = models.CharField(max_length = 100, unique = True)
     manufacturer = models.CharField(max_length = 100)
     model = models.CharField(max_length = 100)
     series = models.CharField(max_length = 100)
